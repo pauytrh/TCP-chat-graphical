@@ -7,7 +7,7 @@ client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 HOST = ''
 if not HOST:
-    HOST = input("What is the host ip? (the ip the server.py output's on run)\n")
+    HOST = input("What is the host IP? (the IP the server.py outputs on run)\n")
 PORT = 55555
 
 try:
@@ -32,6 +32,17 @@ root.configure(bg=BG_COLOR)
 
 chat_frame = tk.Frame(root, bg=BG_COLOR)
 chat_frame.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
+
+scrollbar = tk.Scrollbar(chat_frame)
+scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+canvas = tk.Canvas(chat_frame, bg=BG_COLOR, yscrollcommand=scrollbar.set, highlightthickness=0)
+canvas.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
+
+scrollbar.config(command=canvas.yview)
+
+canvas_frame = tk.Frame(canvas, bg=BG_COLOR, highlightthickness=0)
+canvas.create_window((0, 0), window=canvas_frame, anchor="nw")
 
 input_area = tk.Text(root, bg=INPUT_BG_COLOR, fg=TEXT_COLOR, insertbackground=TEXT_COLOR, height=3, wrap=tk.WORD)
 input_area.pack(padx=10, pady=(0, 10), fill=tk.X, side=tk.LEFT, expand=True)
@@ -85,28 +96,31 @@ def receive():
             client.close()
             break
         except Exception as e:
-            display_message(f"[SYSTEM] Error: {str(e)}")  
+            display_message(f"[SYSTEM] Error: {str(e)}")
             stop_thread = True
             client.close()
             break
 
 def display_message(full_message):
-    message_frame = tk.Frame(chat_frame, bg=BG_COLOR)
+    message_frame = tk.Frame(canvas_frame, bg=BG_COLOR)
     message_frame.pack(anchor='w', padx=10, pady=5, fill=tk.X)
+
     avatar_label = tk.Label(message_frame, image=avatar_img, bg=BG_COLOR)
     avatar_label.pack(side=tk.LEFT, padx=(0, 10))
 
     if ':' in full_message:
         nick, msg = full_message.split(':', 1)
-        text_frame = tk.Frame(message_frame, bg=BG_COLOR)
-        text_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        nick_label = tk.Label(text_frame, text=nick.strip(), fg=NICK_COLOR, bg=BG_COLOR, font=('Helvetica', 10, 'bold'))
+        nick_label = tk.Label(message_frame, text=nick.strip(), fg=NICK_COLOR, bg=BG_COLOR, font=('Helvetica', 10, 'bold'))
         nick_label.pack(anchor='w')
-        msg_label = tk.Label(text_frame, text=msg.strip(), fg=TEXT_COLOR, bg=BG_COLOR, font=('Helvetica', 10))
+        msg_label = tk.Label(message_frame, text=msg.strip(), fg=TEXT_COLOR, bg=BG_COLOR, font=('Helvetica', 10))
         msg_label.pack(anchor='w')
     else:  
         system_label = tk.Label(message_frame, text=full_message, fg=SYSTEM_COLOR, bg=BG_COLOR, font=('Helvetica', 10, 'italic'))
         system_label.pack(anchor='w')
+
+    canvas.update_idletasks()
+    canvas.config(scrollregion=canvas.bbox("all"))
+    canvas.yview_moveto(1)
 
 def send_message():
     global stop_thread

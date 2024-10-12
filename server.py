@@ -23,7 +23,7 @@ def remove_disconnected(client: Client):
     broadcast(f'{client.nickname} has left!'.encode())
 
 def ask_to_leave(client: Client, msg):
-    client.clientSocket.send(f'LEAVE_CHAT:{msg}'.encode())
+    client.clientSocket.send(f'SYSTEM {msg}'.encode())
 
 def broadcast(message):
     for client in clients:
