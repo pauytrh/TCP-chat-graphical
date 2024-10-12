@@ -5,8 +5,9 @@ import threading
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# Replace with your server's local IP address.
-HOST = '192.168.1.130'
+HOST = ''
+if not HOST:
+    HOST = input("What is the host ip? (the ip the server.py output's on run)\n")
 PORT = 55555
 
 try:
